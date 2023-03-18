@@ -2,7 +2,7 @@ use fastanvil::{CurrentJavaChunk, Region};
 use fastnbt::from_bytes;
 use std::fs::read_dir;
 
-fn get_absolute_coords(mca_x: usize, mca_z: usize, chunk_x: usize, chunk_z: usize, block_x: usize, block_y: usize, block_z: usize) -> (usize, usize, usize) {
+fn get_absolute_coords(mca_x: isize, mca_z: isize, chunk_x: isize, chunk_z: isize, block_x: isize, block_y: isize, block_z: isize) -> (isize, isize, isize) {
     let world_x = block_x + (16 * (chunk_x + (32 * mca_x)));
     let world_y = block_y;
     let world_z = block_z + (16 * (chunk_z + (32 * mca_z)));
@@ -25,8 +25,8 @@ fn main() {
     let unwrapped_region_mca_paths = region_mca_paths.unwrap();
 
     unwrapped_region_mca_paths.for_each(|path| {
-        let mca_x: usize = path.as_ref().unwrap().file_name().to_str().unwrap().split(".").nth(1).unwrap().parse().unwrap();
-        let mca_z: usize = path.as_ref().unwrap().file_name().to_str().unwrap().split(".").nth(2).unwrap().parse().unwrap();
+        let mca_x: isize = path.as_ref().unwrap().file_name().to_str().unwrap().split(".").nth(1).unwrap().parse().unwrap();
+        let mca_z: isize = path.as_ref().unwrap().file_name().to_str().unwrap().split(".").nth(2).unwrap().parse().unwrap();
 
         let current_mca_file = std::fs::File::open(path.as_ref().unwrap().path()).unwrap();
 
@@ -52,7 +52,7 @@ fn main() {
                         (0..16).into_iter().for_each(|y| {
                             (0..16).into_iter().for_each(|z| {
                                 let block_name = section.block_states.at(x, y, z).unwrap().name();
-                                let real_coords = get_absolute_coords(mca_x, mca_z, chunk_x, chunk_z, x, y, z);
+                                let real_coords = get_absolute_coords(mca_x, mca_z, chunk_x as isize, chunk_z as isize, x as isize, y as isize, z as isize);
                                 if block_name.to_string().contains(pattern.as_str()) {
                                     println!("Block at [realpos {0}, {1}, {2}] mca {3} [chunk x: {4}, y: {5}] [chunkpos x: {6}, y: {7}, z: {8}] has name: {9} AND description: {10}",
                                         real_coords.0,
