@@ -1,0 +1,10 @@
+[package]
+name = "whereblock"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+fastanvil = "0.26.1"
+fastnbt = "2.4.3"
