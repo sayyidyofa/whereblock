@@ -2,11 +2,10 @@ use fastanvil::{CurrentJavaChunk, Region};
 use fastnbt::from_bytes;
 use std::fs::read_dir;
 
-fn get_absolute_coords(chunk_x: i32, chunk_z: i32, block_x: i32, block_y: i32, block_z: i32) -> (i32, i32, i32) {
-    let chunk_size = 16;
-    let world_x = chunk_x * chunk_size + block_x;
+fn get_absolute_coords(mca_x: usize, mca_z: usize, chunk_x: usize, chunk_z: usize, block_x: usize, block_y: usize, block_z: usize) -> (usize, usize, usize) {
+    let world_x = block_x + (16 * (chunk_x + (32 * mca_x)));
     let world_y = block_y;
-    let world_z = chunk_z * chunk_size + block_z;
+    let world_z = block_z + (16 * (chunk_z + (32 * mca_z)));
     (world_x, world_y, world_z)
 }
 
@@ -26,6 +25,9 @@ fn main() {
     let unwrapped_region_mca_paths = region_mca_paths.unwrap();
 
     unwrapped_region_mca_paths.for_each(|path| {
+        let mca_x: usize = path.as_ref().unwrap().file_name().to_str().unwrap().split(".").nth(1).unwrap().parse().unwrap();
+        let mca_z: usize = path.as_ref().unwrap().file_name().to_str().unwrap().split(".").nth(2).unwrap().parse().unwrap();
+
         let current_mca_file = std::fs::File::open(path.as_ref().unwrap().path()).unwrap();
 
         let mut region = Region::from_stream(current_mca_file).unwrap();
@@ -50,8 +52,12 @@ fn main() {
                         (0..16).into_iter().for_each(|y| {
                             (0..16).into_iter().for_each(|z| {
                                 let block_name = section.block_states.at(x, y, z).unwrap().name();
+                                let real_coords = get_absolute_coords(mca_x, mca_z, chunk_x, chunk_z, x, y, z);
                                 if block_name.to_string().contains(pattern.as_str()) {
-                                    println!("Block at mca {0} chunk {1}, {2} pos x: {3}, y: {4}, z: {5} has name: {6} AND description: {7}",
+                                    println!("Block at [realpos {0}, {1}, {2}] mca {3} [chunk x: {4}, y: {5}] [chunkpos x: {6}, y: {7}, z: {8}] has name: {9} AND description: {10}",
+                                        real_coords.0,
+                                        real_coords.1,
+                                        real_coords.2,
                                         path.as_ref().unwrap().file_name().into_string().unwrap(),
                                         chunk_x,
                                         chunk_z,
