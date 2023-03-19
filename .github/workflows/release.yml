@@ -6,6 +6,7 @@ on:
 
 jobs:
   release:
+    permissions: write-all
     name: Create Release
     runs-on: ubuntu-latest
     steps:
@@ -22,6 +23,7 @@ jobs:
           prerelease: false
 
   publish:
+    permissions: write-all
     name: publish ${{ matrix.name }}
     needs:
       - release
